@@ -1,0 +1,143 @@
+spring:
+  profiles: # ???
+    #    intellij edit configuration ????.
+    active: local # ???? ???? ?
+    # ??? local, dev (??), real (????) ? ???? ?.
+    group:
+      "local": "localdb,common"
+    #      "dev":  "edudb,common"
+    #      "prod": "proddb,common"
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher # swagger path 설정 충돌??남
+
+logging:
+  pattern:
+    file: "[%d{HH:mm:ss.SSS}][%-5level][%logger.%method:line%line] - %msg%n"
+  level:
+    com.jsol.mcall : debug
+#    org.hibernate.SQL: debug
+#    org.hibernate.type: trace # ?? ??? ??? ?? ? ? ?? ?. ??, ?? ??. ??? ??? ??? ?? ??? ??.
+
+---
+
+server:
+  port: 9101
+  servlet:
+    context-path: /api
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+      force-response: true
+  tomcat:
+    accesslog:
+      directory: log
+      enabled: true
+      file-date-format: .yyyy-MM-dd
+      max-days: 14
+      pattern: '%h %l %u %t "%r" %s %b "%{Referer}i" "%{User-Agent}i"' #combined
+      prefix: access
+      rotate: true
+      suffix: .log
+    basedir: ./logs
+
+
+
+---
+
+#spring:
+#  config:
+#    activate:
+#      on-profile: "proddb"
+#  datasource:
+#
+#    url: jdbc:mysql://14.45.108.71:3306/mcall?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&userSSL=false&zeroDateTimeBehavior=convertToNull&validationQuery="select 1"
+#    username: mcallroot
+#    password: jsoljsolution0720!!
+#    driver-class-name: com.mysql.jdbc.Driver # com.mysql.jdbc.Driver deprecated
+#
+##    url: jdbc:mariadb://14.45.108.75:3306/mcall
+##    username: mcallroot
+##    password: jsolwpdlthffntus750!@
+##    driver-class-name: org.mariadb.jdbc.Driver
+#param:
+#  idm:
+#    url: https://m-call.kro.kr/idm
+---
+#spring:
+#  config:
+#    activate:
+#      on-profile: "edudb"
+#  datasource:
+#    url: jdbc:mysql://14.45.108.71:3306/mcall_edu?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&userSSL=false&zeroDateTimeBehavior=convertToNull
+#    username: mcallroot
+#    password: jsoljsolution0720!!
+#    driver-class-name: com.mysql.jdbc.Driver # com.mysql.jdbc.Driver deprecated
+##    url: jdbc:mariadb://14.45.108.75:3306/mcall_edu
+##    username: mcallroot
+##    password: jsolwpdlthffntus750!@
+##    driver-class-name: org.mariadb.jdbc.Driver
+#server:
+#  port: 5006
+#
+#param:
+#  idm:
+#    url: http://localhost:3001/api/inout
+##    url: https://m-call.kro.kr/test/idm
+---
+spring:
+  config:
+    activate:
+      on-profile: "localdb"
+  datasource:
+#    url: jdbc:mariadb://14.45.108.75:3306/mcall
+    url: jdbc:mariadb://localhost:3306/flashcard?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&userSSL=false&zeroDateTimeBehavior=convertToNull
+    username: flashcard_manager
+    password: flashcard_leehj12!$
+    driver-class-name: org.mariadb.jdbc.Driver # com.mysql.jdbc.Driver deprecated
+server:
+  port: 9103 # local = 3
+  
+# swagger api context-path 설정
+# nginx에서 teosp로 오면 api로 돌려버렸는데
+# 이 설정 안 해주면 /teosp/api/~~~ 로 와서
+# /api/api로 url이 바껴버림
+
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: "common"
+
+  servlet:
+    multipart:
+      max-request-size: 10240KB #?? ?? ??? : 10MB
+      max-file-size: 10240KB #?? ?? ??? : 10MB
+
+
+  jwt:
+    secret: goblepol@$&
+
+  mvc:
+    format:
+      date: yyyy-MM-dd
+      date-time: yyyy-MM-dd HH:mm:ss
+      time: HH:mm:ss
+
+      properties:
+        hibernate:
+          dialect: org.hibernate.dialect.MySQL5InnoDBDialect # DB Engine? innoDB? ??. ??? My ???.
+          #        show_sql: true # sout?? ????? ????. ?? ??? ???? ??.
+          format_sql: true
+  #        use_sql_comments: true # true -> jpql ? ? ??
+
+  jpa:
+    hibernate:
+      ddl-auto: update # ???? ?? ???(??? create??.)
+    date-format: yyyy-MM-dd'T'hh:mm:ss
+    database: mysql # hibernate database ??? ??
+
+---
