@@ -7,6 +7,7 @@ import com.teosprint.flashcard.entity.CardHashTag;
 import com.teosprint.flashcard.repository.CardHashtagRepository;
 import com.teosprint.flashcard.repository.CardRepository;
 import com.teosprint.flashcard.service.interfaces.CardService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class CardServiceImpl implements CardService {
 
     @Autowired
@@ -31,19 +33,43 @@ public class CardServiceImpl implements CardService {
     @Autowired
     private CardHashtagServiceImpl cardHashtagService;
 
+    /**
+     * card entity로 조회한다
+     * @param cardId 카드 pk
+     * @return Card Entity
+     */
     @Override
     @Transactional(readOnly = true)
-    public CardDto.CardInfo getCardById(Long cardId) {
+    public Card findCardById(Long cardId) {
         Optional<Card> cardOpt = cardRepository.findById(cardId);
-        if(cardOpt.isPresent())return new CardDto.CardInfo(cardOpt.get());
+        if(cardOpt.isPresent())return cardOpt.get();
         else throw new MyEntityNotFoundException("card", "id로 조회할 수 없습니다.");
     }
 
+    /**
+     * Card를 Dto로 조회한다.
+     * @param cardId
+     * @return CardDto.CardInfo Dto
+     */
     @Override
     @Transactional(readOnly = true)
-    public List<CardDto.CardInfo> getCardAllByHashTag(String hashtag) {
-        List<CardDto.CardInfo> cards = cardRepository.findAllByHashtagsContains(hashtag);
-        return cards;
+    public CardDto.CardInfo getCardById(Long cardId) {
+        return new CardDto.CardInfo(findCardById(cardId));
+    }
+
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CardDto.CardSerachByHashtag> getCardAllByHashTag(String hashtag) {
+        if(hashtag == null){
+            hashtag="";
+        }
+        List<CardDto.CardSerachByHashtag> cardHashTags = cardHashtagRepository.findCardAllByNameContains(hashtag);
+        log.info("card hash tags : {}", cardHashTags);
+        return cardHashTags;
+        //        List<CardDto.CardInfo> cards = cardRepository.findAllByHashtagsContains(hashtag);
+//        return cards;
     }
 
     @Override
@@ -80,6 +106,16 @@ public class CardServiceImpl implements CardService {
     @Transactional
     public CardDto.CardInfo updateCard(CardDto.CardPost postDto) {
         return null;
+    }
+
+    @Override
+    @Transactional
+    public CardDto.CardInfo updateCardView(Long cardId) {
+        Card card = findCardById(cardId);
+        card.setViewCount(card.getViewCount() + 1);
+        Card savedEntity = cardRepository.save(card);
+        CardDto.CardInfo resCardInfo = new CardDto.CardInfo(savedEntity);
+        return resCardInfo;
     }
 
     @Override

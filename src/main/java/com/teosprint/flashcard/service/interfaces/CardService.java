@@ -7,9 +7,11 @@ import java.util.List;
 
 public interface CardService{
 
+    Card findCardById(Long cardId);
     CardDto.CardInfo getCardById(Long cardId);
-    List<CardDto.CardInfo> getCardAllByHashTag(String hashtag);
+    List<CardDto.CardSerachByHashtag> getCardAllByHashTag(String hashtag);
     CardDto.CardInfo postCard(CardDto.CardPost postDto);
     CardDto.CardInfo updateCard(CardDto.CardPost postDto);
+    CardDto.CardInfo updateCardView(Long cardId);
     CardDto.CardInfo deleteCardById(Long cardId);
 }

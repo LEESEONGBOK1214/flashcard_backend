@@ -1,17 +1,15 @@
 package com.teosprint.flashcard.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity // 엔티티(테이블엔티티) 임을 알림
 @Table(schema = "flashcard", name = "tb_card_hashtag") // 테이블명
-@Data
+@Getter
 @NoArgsConstructor // 기본 생성자 =>class() 추가
 @AllArgsConstructor @Builder // 전체 생성자에 builder까지 설정
+@ToString
 public class CardHashTag {
     // 카드엔 이름, 내용, 해시태그가 들어감
     // 카드:해시태그 = 1:n
@@ -36,4 +34,6 @@ public class CardHashTag {
         this.card = card;
         this.name = name;
     }
+
+
 }

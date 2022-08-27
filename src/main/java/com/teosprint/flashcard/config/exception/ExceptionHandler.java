@@ -130,14 +130,13 @@ public class ExceptionHandler {
     //모든 예외를 핸들링하여 ErrorResponse 형식으로 반환한다.
     @org.springframework.web.bind.annotation.ExceptionHandler(Exception.class)
     protected ResponseEntity<ApiErrorResponse> handleException(Exception e) {
-        logger.error("handleException...", e);
+        logger.error("Exception Handler - Exception.class", e);
         ApiErrorResponse response
                 = ApiErrorResponse
                 .create()
                 .status(Integer.parseInt(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value())))
                 .code(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
                 .message(e.toString());
-
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

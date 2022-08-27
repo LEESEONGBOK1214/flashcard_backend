@@ -1,9 +1,6 @@
 package com.teosprint.flashcard.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Comment;
 
 import javax.persistence.*;
@@ -11,7 +8,10 @@ import java.util.List;
 
 @Entity // 엔티티(테이블엔티티) 임을 알림
 @Table(schema = "flashcard", name = "tb_card") // 테이블명
-@Data
+@Getter @Setter 
+
+// toString에 hashtags 제거
+@ToString(exclude = "hashtags")
 @NoArgsConstructor // 기본 생성자 =>class() 추가
 @AllArgsConstructor @Builder // 전체 생성자에 builder까지 설정
 public class Card {
@@ -30,7 +30,7 @@ public class Card {
     private String answer;
 
     @Column(nullable = false)
-    private Long view;
+    private Long viewCount;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "card_id", foreignKey = @ForeignKey(name = "tb_card_card_hash_tag_oTm_fk"))
