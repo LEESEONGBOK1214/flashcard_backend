@@ -29,7 +29,10 @@ public class Card {
     @Column(nullable = false, length = 4000)
     private String answer;
 
+    @Column(nullable = false)
+    private Long view;
+
     @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    @JoinColumn(name = "card", foreignKey = @ForeignKey(name = "tb_card_card_hash_tag_oTm_fk"))
+    @JoinColumn(name = "card_id", foreignKey = @ForeignKey(name = "tb_card_card_hash_tag_oTm_fk"))
     private List<CardHashTag> hashtags;
 }

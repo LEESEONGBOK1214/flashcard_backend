@@ -97,7 +97,7 @@ public class ExceptionHandler {
                 .create()
                 .status(400)
                 .code("error-value-valid")
-                .message("데이터가 제약조건 위반됩니다.\n"+ex.getMessage());
+                .message("데이터가 제약조건 위반됩니다."+ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 

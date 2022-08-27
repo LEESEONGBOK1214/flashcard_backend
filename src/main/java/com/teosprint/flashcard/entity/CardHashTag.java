@@ -28,4 +28,12 @@ public class CardHashTag {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "card_id", foreignKey = @ForeignKey(name = "tb_card_hashtag_card_id_fk"), nullable = false)
     private Card card;
+
+    public CardHashTag(String s) {
+    }
+
+    public CardHashTag(Card card, String name) {
+        this.card = card;
+        this.name = name;
+    }
 }
