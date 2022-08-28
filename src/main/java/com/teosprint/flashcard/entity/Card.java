@@ -2,6 +2,7 @@ package com.teosprint.flashcard.entity;
 
 import lombok.*;
 import org.hibernate.annotations.Comment;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import javax.persistence.*;
 import java.util.List;

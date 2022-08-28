@@ -2,6 +2,7 @@ package com.teosprint.flashcard.service;
 
 import com.teosprint.flashcard.config.exception.MyEntityNotFoundException;
 import com.teosprint.flashcard.dto.CardDto;
+import com.teosprint.flashcard.dto.CardHashTagDto;
 import com.teosprint.flashcard.entity.Card;
 import com.teosprint.flashcard.entity.CardHashTag;
 import com.teosprint.flashcard.repository.CardHashtagRepository;
@@ -9,6 +10,7 @@ import com.teosprint.flashcard.repository.CardRepository;
 import com.teosprint.flashcard.service.interfaces.CardService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,8 +32,8 @@ public class CardServiceImpl implements CardService {
     @Autowired
     private CardHashtagRepository cardHashtagRepository;
 
-    @Autowired
-    private CardHashtagServiceImpl cardHashtagService;
+//    @Autowired
+//    private CardHashtagServiceImpl cardHashtagService;
 
     /**
      * card entity로 조회한다
@@ -61,15 +63,13 @@ public class CardServiceImpl implements CardService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CardDto.CardSerachByHashtag> getCardAllByHashTag(String hashtag) {
+    public List<CardDto.CardSerachByHashtag> getCardAllByHashTag(String hashtag, Pageable pageable) {
         if(hashtag == null){
             hashtag="";
         }
-        List<CardDto.CardSerachByHashtag> cardHashTags = cardHashtagRepository.findCardAllByNameContains(hashtag);
+        List<CardDto.CardSerachByHashtag> cardHashTags = cardHashtagRepository.findCardAllByNameContains(hashtag, pageable);
         log.info("card hash tags : {}", cardHashTags);
         return cardHashTags;
-        //        List<CardDto.CardInfo> cards = cardRepository.findAllByHashtagsContains(hashtag);
-//        return cards;
     }
 
     @Override
@@ -81,6 +81,7 @@ public class CardServiceImpl implements CardService {
                 .explain(postDto.getExplain())
                 // 뒤
                 .answer(postDto.getAnswer())
+                .viewCount(0L)
                 .build();
         Card save = cardRepository.save(card);
         
@@ -89,17 +90,23 @@ public class CardServiceImpl implements CardService {
         em.flush();
         // 카드에 해시태그 값들 저장하기
         List<String> hashtags = postDto.getHashtags();
-        List<CardHashTag> hashTags = hashtags.stream().map(name -> {
+        List<CardHashTagDto.InCardInfo> hashTags = hashtags.stream().map(name -> {
                     CardHashTag hashtag = cardHashtagRepository.save(new CardHashTag(save, name));
                     em.persist(hashtag);
-                    return hashtag;
+                    return new CardHashTagDto.InCardInfo(hashtag);
                 })
                 .collect(Collectors.toList());
         
         // 결과 반환에 save에 나오도록 데이터 밀어넣음
         em.flush();
-        return getCardById(save.getId());
-//        return new CardDto.CardInfo(save);
+
+        CardDto.CardInfo resCard = new CardDto.CardInfo(save);
+        resCard.setHashtags(hashTags);
+
+        log.info("save : {}", save);
+        log.info("hashTags : {}", hashTags);
+        log.info("resCard : {}", resCard);
+        return resCard;
     }
 
     @Override

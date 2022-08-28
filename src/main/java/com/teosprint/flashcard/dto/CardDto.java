@@ -68,6 +68,7 @@ public class CardDto {
     public static class CardPost{
         private String explain;
         private String answer;
+        @Schema(name = "hashtags", example = "typescript", minLength = 1, description = "최소 한 개 이상의 hashtag를 넘겨야합니다.")
         private List<String> hashtags;
     }
 

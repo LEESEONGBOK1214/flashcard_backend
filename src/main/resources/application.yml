@@ -136,6 +136,7 @@ spring:
   #        use_sql_comments: true # true -> jpql ? ? ??
 
   jpa:
+    show-sql: true # sql log 보이게 설정
     hibernate:
       ddl-auto: update # ???? ?? ???(??? create??.)
     date-format: yyyy-MM-dd'T'hh:mm:ss
