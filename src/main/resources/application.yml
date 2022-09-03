@@ -1,7 +1,7 @@
 spring:
   profiles: # ???
     #    intellij edit configuration ????.
-    active: local # ???? ???? ?
+    active: naver # ???? ???? ?
     # ??? local, dev (??), real (????) ? ???? ?.
     group:
       "local": "localdb,common"
@@ -10,19 +10,6 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher # swagger path 설정 충돌??남
-
-logging:
-  pattern:
-    file: "[%d{HH:mm:ss.SSS}][%-5level][%logger.%method:line%line] - %msg%n"
-  level:
-    com.jsol.mcall : debug
-#    org.hibernate.SQL: debug
-#    org.hibernate.type: trace # ?? ??? ??? ?? ? ? ?? ?. ??, ?? ??. ??? ??? ??? ?? ??? ??.
-
-
----
-
-server:
   port: 9101
   servlet:
     context-path: /teosp
@@ -44,48 +31,24 @@ server:
     basedir: ./logs
 
 
-
+logging:
+  pattern:
+    file: "[%d{HH:mm:ss.SSS}][%-5level][%logger.%method:line%line] - %msg%n"
+  level:
+    com.jsol.mcall : debug
 ---
-
-#spring:
-#  config:
-#    activate:
-#      on-profile: "proddb"
-#  datasource:
-#
-#    url: jdbc:mysql://14.45.108.71:3306/mcall?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&userSSL=false&zeroDateTimeBehavior=convertToNull&validationQuery="select 1"
-#    username: mcallroot
-#    password: jsoljsolution0720!!
-#    driver-class-name: com.mysql.jdbc.Driver # com.mysql.jdbc.Driver deprecated
-#
-##    url: jdbc:mariadb://14.45.108.75:3306/mcall
-##    username: mcallroot
-##    password: jsolwpdlthffntus750!@
-##    driver-class-name: org.mariadb.jdbc.Driver
-#param:
-#  idm:
-#    url: https://m-call.kro.kr/idm
----
-#spring:
-#  config:
-#    activate:
-#      on-profile: "edudb"
-#  datasource:
-#    url: jdbc:mysql://14.45.108.71:3306/mcall_edu?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&userSSL=false&zeroDateTimeBehavior=convertToNull
-#    username: mcallroot
-#    password: jsoljsolution0720!!
-#    driver-class-name: com.mysql.jdbc.Driver # com.mysql.jdbc.Driver deprecated
-##    url: jdbc:mariadb://14.45.108.75:3306/mcall_edu
-##    username: mcallroot
-##    password: jsolwpdlthffntus750!@
-##    driver-class-name: org.mariadb.jdbc.Driver
-#server:
-#  port: 5006
-#
-#param:
-#  idm:
-#    url: http://localhost:3001/api/inout
-##    url: https://m-call.kro.kr/test/idm
+spring:
+  config:
+    activate:
+      on-profile: "naverdb"
+  datasource:
+    #    url: jdbc:mariadb://14.45.108.75:3306/mcall
+    url: jdbc:mariadb://115.85.181.161:3306/flashcard?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&userSSL=false&zeroDateTimeBehavior=convertToNull
+    username: flashcard_manager
+    password: flashcard_leehj12!$
+    driver-class-name: org.mariadb.jdbc.Driver # com.mysql.jdbc.Driver deprecated
+server:
+  port: 9101 # naver
 ---
 spring:
   config:
