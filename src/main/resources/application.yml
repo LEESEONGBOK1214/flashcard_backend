@@ -6,7 +6,7 @@ spring:
     group:
       "local": "localdb,common"
       "naver":  "naverdb,common"
-    #      "prod": "proddb,common"
+      "prod": "localdb,common"
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher # swagger path 설정 충돌??남
@@ -40,6 +40,13 @@ logging:
 spring:
   config:
     activate:
+      on-profile: "prod"
+server:
+  port: 9101 # prod=1
+---
+spring:
+  config:
+    activate:
       on-profile: "naverdb"
   datasource:
     #    url: jdbc:mariadb://14.45.108.75:3306/mcall
@@ -48,7 +55,17 @@ spring:
     password: flashcard_leehj12!$
     driver-class-name: org.mariadb.jdbc.Driver # com.mysql.jdbc.Driver deprecated
 server:
-  port: 9101 # naver
+  port: 9102 # naver
+
+
+
+---
+spring:
+  config:
+    activate:
+      on-profile: "local"
+server:
+  port: 9103 # local = 3
 ---
 spring:
   config:
@@ -60,15 +77,10 @@ spring:
     username: flashcard_manager
     password: flashcard_leehj12!$
     driver-class-name: org.mariadb.jdbc.Driver # com.mysql.jdbc.Driver deprecated
-server:
-  port: 9103 # local = 3
-  
 # swagger api context-path 설정
 # nginx에서 teosp로 오면 api로 돌려버렸는데
 # 이 설정 안 해주면 /teosp/api/~~~ 로 와서
 # /api/api로 url이 바껴버림
-
-
 ---
 
 spring:
