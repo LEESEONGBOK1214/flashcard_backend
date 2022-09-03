@@ -41,8 +41,31 @@ spring:
   config:
     activate:
       on-profile: "prod"
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher # swagger path 설정 충돌??남
+  port: 9101
+  servlet:
+    context-path: /teosp
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+      force-response: true
+  tomcat:
+    accesslog:
+      directory: log
+      enabled: true
+      file-date-format: .yyyy-MM-dd
+      max-days: 14
+      pattern: '%h %l %u %t "%r" %s %b "%{Referer}i" "%{User-Agent}i"' #combined
+      prefix: access
+      rotate: true
+      suffix: .log
+    basedir: ./logs
 server:
   port: 9101 # prod=1
+
 ---
 spring:
   config:
