@@ -33,6 +33,7 @@ public class UserDto {
     }
 
     @Data
+    @EqualsAndHashCode(callSuper=false)
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UserLoginResponse extends UserInfo {
