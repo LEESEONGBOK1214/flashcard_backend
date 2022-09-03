@@ -5,7 +5,7 @@ spring:
     # ??? local, dev (??), real (????) ? ???? ?.
     group:
       "local": "localdb,common"
-    #      "dev":  "edudb,common"
+      "naver":  "naverdb,common"
     #      "prod": "proddb,common"
   mvc:
     pathmatch:
