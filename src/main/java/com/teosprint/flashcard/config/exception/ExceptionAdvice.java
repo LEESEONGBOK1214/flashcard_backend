@@ -1,5 +1,6 @@
 package com.teosprint.flashcard.config.exception;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,13 +8,17 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.util.Arrays;
 
 
 @ControllerAdvice
 @RequiredArgsConstructor
-public class ExceptionHandler {
+public class ExceptionAdvice {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -40,21 +45,42 @@ public class ExceptionHandler {
 //        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 //    }
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(HttpMessageNotReadableException.class)
+
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiErrorResponse> httpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex){
+        ApiErrorResponse response
+                = ApiErrorResponse
+                .create()
+                .status(400)
+                .code("error-miss match method")
+                .message("맞는 요청을 찾지 못 했습니다. 요청 Method 및 URL을 확인해주세요.");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+    
+    @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiErrorResponse> httpMessageNotReadableException(HttpMessageNotReadableException ex) {
-        ex.printStackTrace();
+        String errorMessage = "request body를 확인해주세요.";
+        if (ex.getCause() instanceof InvalidFormatException) {
+            InvalidFormatException ifx = (InvalidFormatException) ex.getCause();
+            if (ifx.getTargetType()!=null && ifx.getTargetType().isEnum()) {
+                errorMessage = String.format("Invalid enum value: '%s' for the field: '%s'. The value must be one of: %s.",
+                        ifx.getValue(), ifx.getPath().get(ifx.getPath().size()-1).getFieldName(), Arrays.toString(ifx.getTargetType().getEnumConstants()));
+            }
+        }
+
         ApiErrorResponse response
                 = ApiErrorResponse
                 .create()
                 .status(400)
                 .code("error-request-body-missing-400")
-                .message("request body json을 입력해주세요");
+                .message(errorMessage);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
 
     //@Valid 검증 실패 시 Catch
-    @org.springframework.web.bind.annotation.ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
 
         String errorMessage = e.getBindingResult()
@@ -74,7 +100,7 @@ public class ExceptionHandler {
 
 
     //@Valid 검증 실패 시 Catch
-    @org.springframework.web.bind.annotation.ExceptionHandler(InvalidParameterException.class)
+    @ExceptionHandler(InvalidParameterException.class)
     protected ResponseEntity<ApiErrorResponse> handleInvalidParameterException(InvalidParameterException e) {
         logger.error("handleInvalidParameterException", e);
         ApiErrorResponse response
@@ -89,7 +115,7 @@ public class ExceptionHandler {
 
 
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(DataIntegrityViolationException.class)
+    @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiErrorResponse> DataIntegrityViolationException(DataIntegrityViolationException ex) {
         logger.error(ex.getMessage());
         ApiErrorResponse response
@@ -101,7 +127,7 @@ public class ExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(BasicException.class)
+    @ExceptionHandler(BasicException.class)
     public ResponseEntity<ApiErrorResponse> unauthorizedException(BasicException ex) {
         ex.printStackTrace();
         ApiErrorResponse response
@@ -114,7 +140,7 @@ public class ExceptionHandler {
     }
 
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(IllegalArgumentException.class)
+    @ExceptionHandler(IllegalArgumentException.class)
     protected ResponseEntity<ApiErrorResponse> illegalArgumentExceptionhandleException(IllegalArgumentException e) {
         logger.error("handleException...", e);
         ApiErrorResponse response
@@ -128,7 +154,7 @@ public class ExceptionHandler {
     }
 
     //모든 예외를 핸들링하여 ErrorResponse 형식으로 반환한다.
-    @org.springframework.web.bind.annotation.ExceptionHandler(Exception.class)
+    @ExceptionHandler(Exception.class)
     protected ResponseEntity<ApiErrorResponse> handleException(Exception e) {
         logger.error("Exception Handler - Exception.class", e);
         ApiErrorResponse response

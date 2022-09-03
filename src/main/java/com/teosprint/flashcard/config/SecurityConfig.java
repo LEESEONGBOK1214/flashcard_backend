@@ -1,8 +1,8 @@
 package com.teosprint.flashcard.config;
 
 
+import com.teosprint.flashcard.config.jwt.JwsTokenProvider;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -13,7 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.web.filter.CorsFilter;
@@ -32,8 +32,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final CorsFilter corsFilter;
     private final HttpHeaders httpHeaders = new HttpHeaders();
 
+//    private final JwsTokenProvider tokenProvider;
+
     @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+    public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
 
@@ -51,28 +53,43 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
         http.cors().disable();
-        http
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 세션을 사용하지 않겠다.
+        http.httpBasic().disable()
+                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 세션을 사용하지 않겠다.
+
                 .and()
-                .exceptionHandling()
+                    // exception advice class 설정
+                    .exceptionHandling()
 //                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .and()
                 .addFilter(corsFilter)
                 // 위의 addFilter를 하면 모든 요청은 corsFilter를 거치게 돼있음.
                 // @CrossOrigin는 인증이 필요한 상황에선 해결되지 않는다.
                 // 인증이 있을때는 시큐리티 필터에 등록을 해줘야 한다.
+
 //                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
                 .formLogin().disable()
                 .headers()
                 .frameOptions().sameOrigin()
                 .and()
-                .httpBasic().disable()
-                .authorizeRequests()
-                .antMatchers(HttpMethod.OPTIONS, defaultUrl).permitAll()
-                .antMatchers("/**").permitAll() // 권한 처리를 각 서비스에서 한다.
-                .anyRequest().authenticated()
+                // 권한 인증 설정
+                    .authorizeRequests()
+                    .antMatchers(HttpMethod.OPTIONS, defaultUrl).permitAll()
+                            // hasRole 사용 시 체크 권한이 ROLE_ABC라면 ABC만 적는다.
+                    .antMatchers(("/admin/**")).hasRole("ROOT")
+                    .antMatchers("/**").permitAll() // 권한 처리를 각 서비스에서 한다.
+                    .anyRequest().authenticated()
                 .and()
-                .formLogin().disable();
+
+                // security 기본 로그인 페이지 사용안함
+                .formLogin().disable()
+
+                // oauth 로그인 인증 권한 처리
+//                .addFilterBefore(new JwtExceptionFilter(),
+//                        OAuth2LoginAuthenticationFilter.class)
+//                .oauth2Login().loginPage("/token/expired")
+//                .successHandler(successHandler)
+//                .userInfoEndpoint().userService(oAuth2UserService)
+        ;
 
     }
 

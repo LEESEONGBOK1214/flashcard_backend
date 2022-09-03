@@ -5,9 +5,8 @@ import com.teosprint.flashcard.dto.CardDto;
 import com.teosprint.flashcard.dto.CardHashTagDto;
 import com.teosprint.flashcard.entity.Card;
 import com.teosprint.flashcard.entity.CardHashTag;
-import com.teosprint.flashcard.repository.CardHashtagRepository;
-import com.teosprint.flashcard.repository.CardRepository;
-import com.teosprint.flashcard.service.interfaces.CardService;
+import com.teosprint.flashcard.repository.CardHashtagRepo;
+import com.teosprint.flashcard.repository.CardRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -21,16 +20,16 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class CardServiceImpl implements CardService {
+public class CardServiceImpl {
 
     @Autowired
     private EntityManager em;
     
     @Autowired
-    private CardRepository cardRepository;
+    private CardRepo cardRepo;
 
     @Autowired
-    private CardHashtagRepository cardHashtagRepository;
+    private CardHashtagRepo cardHashtagRepo;
 
 //    @Autowired
 //    private CardHashtagServiceImpl cardHashtagService;
@@ -40,10 +39,9 @@ public class CardServiceImpl implements CardService {
      * @param cardId 카드 pk
      * @return Card Entity
      */
-    @Override
     @Transactional(readOnly = true)
     public Card findCardById(Long cardId) {
-        Optional<Card> cardOpt = cardRepository.findById(cardId);
+        Optional<Card> cardOpt = cardRepo.findById(cardId);
         if(cardOpt.isPresent())return cardOpt.get();
         else throw new MyEntityNotFoundException("card", "id로 조회할 수 없습니다.");
     }
@@ -53,7 +51,6 @@ public class CardServiceImpl implements CardService {
      * @param cardId
      * @return CardDto.CardInfo Dto
      */
-    @Override
     @Transactional(readOnly = true)
     public CardDto.CardInfo getCardById(Long cardId) {
         return new CardDto.CardInfo(findCardById(cardId));
@@ -61,18 +58,16 @@ public class CardServiceImpl implements CardService {
 
 
 
-    @Override
     @Transactional(readOnly = true)
     public List<CardDto.CardSerachByHashtag> getCardAllByHashTag(String hashtag, Pageable pageable) {
         if(hashtag == null){
             hashtag="";
         }
-        List<CardDto.CardSerachByHashtag> cardHashTags = cardHashtagRepository.findCardAllByNameContains(hashtag, pageable);
+        List<CardDto.CardSerachByHashtag> cardHashTags = cardHashtagRepo.findCardAllByNameContains(hashtag, pageable);
         log.info("card hash tags : {}", cardHashTags);
         return cardHashTags;
     }
 
-    @Override
     @Transactional
     public CardDto.CardInfo postCard(CardDto.CardPost postDto) {
         
@@ -83,7 +78,7 @@ public class CardServiceImpl implements CardService {
                 .answer(postDto.getAnswer())
                 .viewCount(0L)
                 .build();
-        Card save = cardRepository.save(card);
+        Card save = cardRepo.save(card);
         
         // save 값을 저장시켜서 hashtag가 인식하도록 설정
         em.persist(save);
@@ -91,7 +86,7 @@ public class CardServiceImpl implements CardService {
         // 카드에 해시태그 값들 저장하기
         List<String> hashtags = postDto.getHashtags();
         List<CardHashTagDto.InCardInfo> hashTags = hashtags.stream().map(name -> {
-                    CardHashTag hashtag = cardHashtagRepository.save(new CardHashTag(save, name));
+                    CardHashTag hashtag = cardHashtagRepo.save(new CardHashTag(save, name));
                     em.persist(hashtag);
                     return new CardHashTagDto.InCardInfo(hashtag);
                 })
@@ -109,23 +104,20 @@ public class CardServiceImpl implements CardService {
         return resCard;
     }
 
-    @Override
     @Transactional
     public CardDto.CardInfo updateCard(CardDto.CardPost postDto) {
         return null;
     }
 
-    @Override
     @Transactional
     public CardDto.CardInfo updateCardView(Long cardId) {
         Card card = findCardById(cardId);
         card.setViewCount(card.getViewCount() + 1);
-        Card savedEntity = cardRepository.save(card);
+        Card savedEntity = cardRepo.save(card);
         CardDto.CardInfo resCardInfo = new CardDto.CardInfo(savedEntity);
         return resCardInfo;
     }
 
-    @Override
     @Transactional
     public CardDto.CardInfo deleteCardById(Long cardId) {
         return null;

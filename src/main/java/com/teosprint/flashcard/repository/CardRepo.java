@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface CardRepository extends JpaRepository<Card, Long> {
+public interface CardRepo extends JpaRepository<Card, Long> {
     List<CardDto.CardInfo> findAllByHashtagsContains(CardHashTag hashtag);
 }
